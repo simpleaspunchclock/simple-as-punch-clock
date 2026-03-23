@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+	android:background="@color/black"	
+	android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+
+        <TextView
+            android:textColor="@color/white"
+		android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Admin Dashboard"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+<Button
+    android:id="@+id/btnEnableKiosk"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Enable Kiosk Mode"
+    android:textColor="@color/white"
+android:backgroundTint="@color/button_gray"
+    android:layout_marginTop="8dp"/>
+
+<Button
+    android:id="@+id/btnDisableKiosk"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Disable Kiosk Mode"
+    android:textColor="@color/white"
+android:backgroundTint="@color/button_gray"
+    android:layout_marginTop="8dp"/>
+
+        <Button
+android:textColor="@color/white"
+android:backgroundTint="@color/button_gray"            
+android:id="@+id/btnEmployees"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Employees" />
+
+        <Button
+android:textColor="@color/white"
+android:backgroundTint="@color/button_gray"            
+android:id="@+id/btnLogs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Punch Logs / Corrections" />
+
+        <Button
+android:textColor="@color/white"
+android:backgroundTint="@color/button_gray"            
+android:id="@+id/btnReports"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Hour Reports" />
+
+        <Button
+android:textColor="@color/white"
+android:backgroundTint="@color/button_gray"            
+android:id="@+id/btnAudit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Audit Log / Admin PIN" />
+
+        <Button
+android:textColor="@color/white"
+android:backgroundTint="@color/button_gray"            
+android:id="@+id/btnBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Back" />
+    </LinearLayout>
+</ScrollView>

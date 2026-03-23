@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    android:padding="16dp">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hour Report"
+	android:textColor="@color/white"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:textColor="@color/white"
+	android:id="@+id/txtDates"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Date Range" />
+	
+
+    <Button
+        android:textColor="@color/white"
+	android:backgroundTint="@color/button_gray"
+	android:id="@+id/btnStart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Set Start Date" />
+
+
+    <Button
+	android:textColor="@color/white"
+	android:backgroundTint="@color/button_gray"        
+	android:id="@+id/btnEnd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Set End Date" />
+
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_weight="1" />
+
+    <Button
+	android:textColor="@color/white"
+	android:backgroundTint="@color/button_gray"        
+	android:id="@+id/btnExportCsv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Export CSV" />
+
+    <Button
+	android:textColor="@color/white"
+	android:backgroundTint="@color/button_gray"        
+	android:id="@+id/btnShareCsv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Share CSV" />
+
+
+    <Button
+	android:textColor="@color/white"
+	android:backgroundTint="@color/button_gray"        
+	android:id="@+id/btnBack"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Back" />
+
+</LinearLayout>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <EditText
+        android:id="@+id/editName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Employee name"
+        android:importantForAutofill="no"
+        android:textColor="@color/white"
+        android:textColorHint="@color/gray" />
+
+    <EditText
+        android:id="@+id/editPin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="4-digit PIN"
+        android:importantForAutofill="no"
+        android:inputType="numberPassword"
+        android:textColor="@color/white"
+        android:textColorHint="@color/gray" />
+
+    <CheckBox
+        android:id="@+id/checkActive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Active"
+        android:textColor="@color/white" />
+</LinearLayout>

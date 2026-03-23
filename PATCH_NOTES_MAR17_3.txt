@@ -1,0 +1,5 @@
+March 17 patch 3
+- Employee selection now only shows employees eligible for the chosen action.
+- IN screen hides employees already punched IN.
+- OUT screen hides employees already punched OUT or never punched IN.
+- Preserves the empty first-run employee prompt and existing dark theme behavior.

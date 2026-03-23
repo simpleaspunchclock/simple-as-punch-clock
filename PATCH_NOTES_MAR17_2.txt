@@ -1,0 +1,9 @@
+PunchClockPanda patch 2
+
+Fixes:
+- Added database migration to remove the old 4 dummy employees and default admin PIN 9999 when upgrading from the seeded build.
+- Disabled Android backup/restore for app data so uninstall/reinstall and fresh installs behave like true local-only installs.
+- Added data extraction rules to keep databases and files out of cloud/device restore.
+
+Why this was needed:
+- The prior patch removed seeding for brand-new databases, but existing installs could still keep or restore old seeded data.

@@ -1,0 +1,108 @@
+package com.simpleas.punchclock
+
+import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.simpleas.punchclock.databinding.ActivityReportBinding
+import java.io.File
+
+class ReportActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityReportBinding
+    private lateinit var db: DatabaseHelper
+    private var startMillis = TimeUtils.startOfDay(TimeUtils.now())
+    private var endMillis = TimeUtils.endOfDay(TimeUtils.now())
+    private var lastExportedCsvFile: File? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityReportBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        db = DatabaseHelper(this)
+
+        binding.btnBack.setOnClickListener { finish() }
+
+        binding.btnStart.setOnClickListener {
+            UiUtils.pickDateTime(this, startMillis) {
+                startMillis = TimeUtils.startOfDay(it)
+                renderDates()
+                refresh()
+            }
+        }
+
+        binding.btnEnd.setOnClickListener {
+            UiUtils.pickDateTime(this, endMillis) {
+                endMillis = TimeUtils.endOfDay(it)
+                renderDates()
+                refresh()
+            }
+        }
+
+        binding.btnExportCsv.setOnClickListener {
+            exportCsv()
+        }
+
+        binding.btnShareCsv.setOnClickListener {
+            shareCsv()
+        }
+
+        renderDates()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refresh()
+    }
+
+    private fun renderDates() {
+        binding.txtDates.text = "${TimeUtils.formatDay(startMillis)} to ${TimeUtils.formatDay(endMillis)}"
+    }
+
+    private fun refresh() {
+        val rows = db.getHoursByEmployee(startMillis, endMillis)
+        val items = rows.map {
+            val issues = if (it.issues > 0) " | issues: ${it.issues}" else ""
+            "${it.employeeName} - ${TimeUtils.formatDuration(it.totalMillis)}$issues"
+        }
+        binding.listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, items)
+    }
+
+    private fun exportCsv() {
+        val rows = db.getHoursByEmployee(startMillis, endMillis)
+
+        val csvRows = rows.map {
+            HourReportRow(
+                employeeName = it.employeeName,
+                startDate = TimeUtils.formatDay(startMillis),
+                endDate = TimeUtils.formatDay(endMillis),
+                totalHours = it.totalMillis / 3600000.0
+            )
+        }
+
+        val csvFile = CsvExporter.exportHoursReport(
+            context = this,
+            rows = csvRows,
+            startDateLabel = TimeUtils.formatDay(startMillis),
+            endDateLabel = TimeUtils.formatDay(endMillis)
+        )
+
+        lastExportedCsvFile = csvFile
+
+        Toast.makeText(
+            this,
+            "CSV saved: ${csvFile.name}",
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
+    private fun shareCsv() {
+        val file = lastExportedCsvFile
+
+        if (file == null || !file.exists()) {
+            Toast.makeText(this, "Export a CSV first.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        CsvShareHelper.shareCsv(this, file)
+    }
+}

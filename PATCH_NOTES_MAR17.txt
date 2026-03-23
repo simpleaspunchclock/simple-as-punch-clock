@@ -1,0 +1,1 @@
+Patched notched-screen safe area via fitsSystemWindows on major layouts; removed default seeded employees/admin pin for new installs; added first-run prompts for empty employee/admin states.
