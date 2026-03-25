@@ -3,6 +3,7 @@ package com.simpleas.punchclock
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.simpleas.punchclock.databinding.ActivityReportBinding
 import java.io.File
@@ -13,6 +14,20 @@ class ReportActivity : AppCompatActivity() {
     private var startMillis = TimeUtils.startOfDay(TimeUtils.now())
     private var endMillis = TimeUtils.endOfDay(TimeUtils.now())
     private var lastExportedCsvFile: File? = null
+    private lateinit var pendingCsvText: String
+    private lateinit var pendingCsvFileName: String
+
+    private val createCsvDocument =
+        registerForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
+            if (uri != null) {
+                contentResolver.openOutputStream(uri)?.use { output ->
+                    output.write(pendingCsvText.toByteArray())
+                }
+                UiUtils.toast(this, "CSV saved")
+            } else {
+                UiUtils.toast(this, "Save cancelled")
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,30 +94,35 @@ class ReportActivity : AppCompatActivity() {
             )
         }
 
-        val csvFile = CsvExporter.exportHoursReport(
+        pendingCsvText = CsvExporter.buildHoursReportCsv(csvRows)
+        pendingCsvFileName = CsvExporter.makeExportFileName(
+            startDateLabel = TimeUtils.formatDay(startMillis),
+            endDateLabel = TimeUtils.formatDay(endMillis)
+        )
+
+        createCsvDocument.launch(pendingCsvFileName)
+    }
+
+    private fun shareCsv() {
+        val rows = db.getHoursByEmployee(startMillis, endMillis)
+
+        val csvRows = rows.map {
+            HourReportRow(
+                employeeName = it.employeeName,
+                startDate = TimeUtils.formatDay(startMillis),
+                endDate = TimeUtils.formatDay(endMillis),
+                totalHours = it.totalMillis / 3600000.0
+            )
+        }
+
+        val file = CsvExporter.exportHoursReportToInternalFile(
             context = this,
             rows = csvRows,
             startDateLabel = TimeUtils.formatDay(startMillis),
             endDateLabel = TimeUtils.formatDay(endMillis)
         )
 
-        lastExportedCsvFile = csvFile
-
-        Toast.makeText(
-            this,
-            "CSV saved: ${csvFile.name}",
-            Toast.LENGTH_LONG
-        ).show()
-    }
-
-    private fun shareCsv() {
-        val file = lastExportedCsvFile
-
-        if (file == null || !file.exists()) {
-            Toast.makeText(this, "Export a CSV first.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
+        lastExportedCsvFile = file
         CsvShareHelper.shareCsv(this, file)
     }
 }

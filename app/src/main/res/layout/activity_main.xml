@@ -20,38 +20,40 @@
 		android:layout_marginBottom="12dp"/>
 
     <TextView
-	android:textColor="@color/white"        
+	android:textColor="@color/white"
 	android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Punch Clock"
         android:textSize="28sp"
         android:textStyle="bold" />
 
-    <Button
-	android:textColor="@color/white"
-	android:backgroundTint="@color/button_gray"        
-	android:id="@+id/btnIn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:minHeight="72dp"
-        android:text="PUNCH IN"
-        android:textSize="24sp" />
+	<Button
+		android:id="@+id/btnIn"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="24dp"
+		android:minHeight="80dp"
+		android:text="PUNCH IN"
+		android:textSize="24sp"
+		android:textColor="@color/white"
+		android:background="@drawable/button_rounded"
+		android:backgroundTint="@color/button_green" />
+
+	<Button
+		android:id="@+id/btnOut"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="16dp"
+		android:minHeight="80dp"
+		android:text="PUNCH OUT"
+		android:textSize="24sp"
+		android:textColor="@color/white"
+		android:background="@drawable/button_rounded"
+		android:backgroundTint="@color/button_red" />
 
     <Button
 	android:textColor="@color/white"
-	android:backgroundTint="@color/button_gray"        
-	android:id="@+id/btnOut"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:minHeight="72dp"
-        android:text="PUNCH OUT"
-        android:textSize="24sp" />
-
-    <Button
-	android:textColor="@color/white"
-	android:backgroundTint="@color/button_gray"        
+	android:backgroundTint="@color/button_gray"
 	android:id="@+id/btnAdmin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

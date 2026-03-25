@@ -19,7 +19,25 @@ object CsvExporter {
 
     private val fileNameDateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.US)
 
-    fun exportHoursReport(
+    fun buildHoursReportCsv(rows: List<HourReportRow>): String {
+        return buildString {
+            appendLine("Employee,Start Date,End Date,Total Hours")
+            for (row in rows) {
+                appendLine(
+                    "${csvEscape(row.employeeName)},${row.startDate},${row.endDate},${row.totalHours}"
+                )
+            }
+        }
+    }
+
+    fun makeExportFileName(startDateLabel: String, endDateLabel: String): String {
+        val timestamp = fileNameDateFormat.format(Date())
+        val safeStart = startDateLabel.replace("/", "-")
+        val safeEnd = endDateLabel.replace("/", "-")
+        return "hours_${safeStart}_to_${safeEnd}_$timestamp.csv"
+    }
+
+    fun exportHoursReportToInternalFile(
         context: Context,
         rows: List<HourReportRow>,
         startDateLabel: String,
@@ -30,24 +48,8 @@ object CsvExporter {
             exportsDir.mkdirs()
         }
 
-        val timestamp = fileNameDateFormat.format(Date())
-        val safeStart = startDateLabel.replace("/", "-")
-        val safeEnd = endDateLabel.replace("/", "-")
-
-        val outFile = File(
-            exportsDir,
-            "hours_${safeStart}_to_${safeEnd}_$timestamp.csv"
-        )
-
-        outFile.bufferedWriter().use { writer ->
-            writer.appendLine("Employee,Start Date,End Date,Total Hours")
-            for (row in rows) {
-                writer.appendLine(
-                    "${csvEscape(row.employeeName)},${row.startDate},${row.endDate},${row.totalHours}"
-                )
-            }
-        }
-
+        val outFile = File(exportsDir, makeExportFileName(startDateLabel, endDateLabel))
+        outFile.writeText(buildHoursReportCsv(rows))
         return outFile
     }
 

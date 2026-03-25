@@ -35,7 +35,22 @@ class EmployeeSelectActivity : AppCompatActivity() {
             }
         }
 
-        val items = employees.map { "${it.name}  (${db.getEmployeeStatus(it.id)})" }
+        val items = employees.map { employee ->
+            when (type) {
+                DatabaseHelper.TYPE_IN -> employee.name
+                DatabaseHelper.TYPE_OUT -> {
+                    val lastPunch = db.getLastPunch(employee.id)
+                    val sinceText = if (lastPunch != null) {
+                        " - in since ${java.text.SimpleDateFormat("h:mm a", java.util.Locale.US).format(java.util.Date(lastPunch.punchTime))}"
+                    } else {
+                        ""
+                    }
+                    employee.name + sinceText
+                }
+                else -> employee.name
+            }
+        }
+
         binding.listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, items)
 
         val hasEligibleEmployees = employees.isNotEmpty()
