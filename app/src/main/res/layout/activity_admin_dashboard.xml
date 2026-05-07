@@ -38,6 +38,15 @@ android:backgroundTint="@color/button_gray"
 android:backgroundTint="@color/button_gray"
     android:layout_marginTop="8dp"/>
 
+        <CheckBox
+            android:id="@+id/checkShowCurrentlyIn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Show currently punched-in employees on home screen"
+            android:textColor="@color/white"
+            android:buttonTint="@color/white" />
+
         <Button
 android:textColor="@color/white"
 android:backgroundTint="@color/button_gray"            
@@ -73,6 +82,33 @@ android:id="@+id/btnAudit"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Audit Log / Admin PIN" />
+
+        <Button
+            android:id="@+id/btnPrivacyPolicy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Privacy Policy"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/button_gray" />
+
+        <Button
+            android:id="@+id/btnExportBackup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Export Backup"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/button_gray" />
+
+        <Button
+            android:id="@+id/btnImportBackup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Import Backup"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/button_gray" />
 
         <Button
 android:textColor="@color/white"

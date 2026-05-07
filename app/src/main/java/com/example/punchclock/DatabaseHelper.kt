@@ -5,7 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
-class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
+class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(
@@ -59,6 +59,11 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null
         if (oldVersion < 3) {
             removeLegacyDefaultData(db)
         }
+    }
+
+    fun updateAdminPin(newPin: String) {
+        val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putString("admin_pin", newPin).apply()
     }
 
     private fun seedDefaults(db: SQLiteDatabase) {
@@ -362,6 +367,102 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null
             isManual = c.getInt(6) == 1,
             note = c.getString(7)
         )
+    }
+
+    fun setAdminRecovery(question: String, answerHash: String) {
+        val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        prefs.edit()
+            .putString("admin_recovery_question", question)
+            .putString("admin_recovery_answer_hash", answerHash)
+            .apply()
+    }
+
+    fun getAdminRecoveryQuestion(): String {
+        val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        return prefs.getString("admin_recovery_question", "").orEmpty()
+    }
+
+    fun getAdminRecoveryAnswerHash(): String {
+        val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        return prefs.getString("admin_recovery_answer_hash", "").orEmpty()
+    }
+
+    fun buildBackupData(): BackupData {
+        val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+
+        return BackupData(
+            backupVersion = 1,
+            employees = getEmployees(includeInactive = true),
+            punches = getPunches(0L, Long.MAX_VALUE),
+            adminPin = getSetting(KEY_ADMIN_PIN),
+            recoveryQuestion = getAdminRecoveryQuestion(),
+            recoveryAnswerHash = getAdminRecoveryAnswerHash(),
+            showCurrentlyIn = prefs.getBoolean("show_currently_in", false),
+            kioskEnabled = KioskManager.enabled
+        )
+    }
+
+    fun restoreBackupData(data: BackupData) {
+        val db = writableDatabase
+        val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+
+        db.beginTransaction()
+
+        try {
+
+            // Clear existing data
+            db.delete("punches", null, null)
+            db.delete("employees", null, null)
+            db.delete("settings", null, null)
+
+            // Restore employees
+            for (employee in data.employees) {
+                val values = ContentValues().apply {
+                    put("id", employee.id)
+                    put("name", employee.name)
+                    put("pin", employee.pin)
+                    put("active", if (employee.active) 1 else 0)
+                }
+
+                db.insert("employees", null, values)
+            }
+
+            // Restore punches
+            for (punch in data.punches) {
+                val values = ContentValues().apply {
+                    put("id", punch.id)
+                    put("employee_id", punch.employeeId)
+                    put("type", punch.type)
+                    put("punch_time", punch.punchTime)
+                    put("created_at", punch.createdAt)
+                    put("is_manual", if (punch.isManual) 1 else 0)
+                    put("note", punch.note)
+                }
+
+                db.insert("punches", null, values)
+            }
+
+            // Restore admin PIN
+            if (!data.adminPin.isNullOrBlank()) {
+                setSetting(KEY_ADMIN_PIN, data.adminPin)
+            }
+
+            // Restore recovery data
+            prefs.edit()
+                .putString("admin_recovery_question", data.recoveryQuestion)
+                .putString("admin_recovery_answer_hash", data.recoveryAnswerHash)
+                .putBoolean("show_currently_in", data.showCurrentlyIn)
+                .apply()
+
+            KioskManager.enabled = data.kioskEnabled
+
+            db.setTransactionSuccessful()
+
+            addAudit("Backup restored")
+
+        } finally {
+            db.endTransaction()
+        }
     }
 
     companion object {

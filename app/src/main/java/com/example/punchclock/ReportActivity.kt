@@ -76,8 +76,9 @@ class ReportActivity : AppCompatActivity() {
     private fun refresh() {
         val rows = db.getHoursByEmployee(startMillis, endMillis)
         val items = rows.map {
-            val issues = if (it.issues > 0) " | issues: ${it.issues}" else ""
-            "${it.employeeName} - ${TimeUtils.formatDuration(it.totalMillis)}$issues"
+            val hoursDecimal = it.totalMillis / 3600000.0
+            val decimalText = String.format(java.util.Locale.US, "%.2f", hoursDecimal)
+            "${it.employeeName} - ${TimeUtils.formatDuration(it.totalMillis)} / ${decimalText}h"
         }
         binding.listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, items)
     }

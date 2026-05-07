@@ -9,6 +9,19 @@ class PinEntryActivity : AppCompatActivity() {
     private lateinit var db: DatabaseHelper
     private var selectedTime = TimeUtils.now()
 
+    private fun updateManualTimeUi(checked: Boolean) {
+        binding.btnPickTime.visibility =
+            if (checked) android.view.View.VISIBLE else android.view.View.GONE
+        binding.txtManualTime.visibility =
+            if (checked) android.view.View.VISIBLE else android.view.View.GONE
+        binding.btnPickTime.isEnabled = checked
+
+        if (!checked) {
+            selectedTime = TimeUtils.now()
+            binding.txtManualTime.text = TimeUtils.formatDisplay(selectedTime)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPinEntryBinding.inflate(layoutInflater)
@@ -18,7 +31,13 @@ class PinEntryActivity : AppCompatActivity() {
         val employeeId = intent.getLongExtra(MainActivity.EXTRA_EMPLOYEE_ID, -1L)
         val employeeName = intent.getStringExtra(MainActivity.EXTRA_EMPLOYEE_NAME).orEmpty()
         val type = intent.getStringExtra(MainActivity.EXTRA_TYPE).orEmpty()
+
         binding.txtHeader.text = "$employeeName - Punch $type"
+        binding.chkManual.text = when (type) {
+            DatabaseHelper.TYPE_IN -> "Use manual time for missed punch in"
+            DatabaseHelper.TYPE_OUT -> "Use manual time for missed punch out"
+            else -> "Use manual time"
+        }
         binding.txtManualTime.text = TimeUtils.formatDisplay(selectedTime)
         binding.btnBack.setOnClickListener { finish() }
 
@@ -28,12 +47,10 @@ class PinEntryActivity : AppCompatActivity() {
         }
 
         binding.chkManual.setOnCheckedChangeListener { _, checked ->
-            binding.btnPickTime.isEnabled = checked
-            if (!checked) {
-                selectedTime = TimeUtils.now()
-                binding.txtManualTime.text = TimeUtils.formatDisplay(selectedTime)
-            }
+            updateManualTimeUi(checked)
         }
+
+        updateManualTimeUi(binding.chkManual.isChecked)
 
         binding.btnPickTime.setOnClickListener {
             UiUtils.pickDateTime(this, selectedTime) {
@@ -48,10 +65,12 @@ class PinEntryActivity : AppCompatActivity() {
                 UiUtils.toast(this, "Enter a 4-digit PIN")
                 return@setOnClickListener
             }
+
             if (!db.verifyEmployeePin(employeeId, pin)) {
                 UiUtils.toast(this, "Incorrect PIN")
                 return@setOnClickListener
             }
+
             val isManual = binding.chkManual.isChecked
             val result = db.addPunch(
                 employeeId = employeeId,
@@ -60,10 +79,14 @@ class PinEntryActivity : AppCompatActivity() {
                 isManual = isManual,
                 note = if (isManual) "Employee self-corrected" else null
             )
+
             if (result.first) {
                 UiUtils.toast(this, result.second)
                 val home = android.content.Intent(this, MainActivity::class.java)
-                home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                home.addFlags(
+                    android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                            android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                )
                 startActivity(home)
                 finish()
             } else {
