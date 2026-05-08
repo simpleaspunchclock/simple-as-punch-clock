@@ -8,10 +8,20 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.simpleas.punchclock.databinding.ActivityAdminLoginBinding
+import android.net.Uri
+import androidx.activity.result.contract.ActivityResultContracts
 
 class AdminLoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAdminLoginBinding
     private lateinit var db: DatabaseHelper
+    private val openBackupDocument =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) {
+                confirmImportBackup(uri)
+            } else {
+                UiUtils.toast(this, "Import cancelled")
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,9 +89,15 @@ class AdminLoginActivity : AppCompatActivity() {
         binding.btnForgotPin.setOnClickListener {
             showRecoveryQuestionDialog()
         }
+        binding.btnImportBackup.setOnClickListener {
+            openBackupDocument.launch(
+                arrayOf("application/json", "text/*", "application/octet-stream", "*/*")
+            )
+        }
     }
 
     private fun refreshMode() {
+        binding.btnImportBackup.visibility = if (db.hasAdminPin()) View.GONE else View.VISIBLE
         if (db.hasAdminPin()) {
             binding.txtTitle.text = "Admin Login"
             binding.txtHelp.text = "Enter your admin PIN to continue."
@@ -194,5 +210,46 @@ class AdminLoginActivity : AppCompatActivity() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+    private fun confirmImportBackup(uri: Uri) {
+        AlertDialog.Builder(this)
+            .setTitle("Import Backup?")
+            .setMessage(
+                "Importing a backup will replace all current employees, punches, admin settings, and app settings on this device."
+            )
+            .setPositiveButton("Import") { _, _ ->
+                importBackup(uri)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun importBackup(uri: Uri) {
+        try {
+            val json = contentResolver.openInputStream(uri)?.bufferedReader()?.use {
+                it.readText()
+            }
+
+            if (json.isNullOrBlank()) {
+                UiUtils.toast(this, "Backup file is empty")
+                return
+            }
+
+            val backup = BackupManager.parseBackupJson(json)
+
+            if (backup.backupVersion != 1) {
+                UiUtils.toast(this, "Unsupported backup version")
+                return
+            }
+
+            db.restoreBackupData(backup)
+
+            UiUtils.toast(this, "Backup imported")
+
+            finishAffinity()
+            startActivity(Intent(this, MainActivity::class.java))
+        } catch (e: Exception) {
+            UiUtils.toast(this, "Backup import failed")
+        }
     }
 }
